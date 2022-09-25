@@ -2,12 +2,13 @@
 
 namespace Maldoinc\Doctrine\Filter\Annotation;
 
-/**
- * @Annotation
- * @Target("PROPERTY")
- */
+use Attribute;
+
+#[Attribute(Attribute::TARGET_PROPERTY)]
 class Expose
 {
-    /** @var string */
-    public $serializedName = null;
+    public function __construct(
+        public ?string $serializedName = null,
+    ) {
+    }
 }

@@ -2,18 +2,13 @@
 
 namespace Maldoinc\Doctrine\Filter;
 
-use Doctrine\Common\Annotations\Reader;
 use Doctrine\ORM\QueryBuilder;
-use Maldoinc\Doctrine\Filter\Annotation\Expose;
+use Maldoinc\Doctrine\Filter\Annotation\Expose as FilterExpose;
 
 class ExposedFieldsReader
 {
-    /** @var Reader */
-    private $reader;
-
-    public function __construct(Reader $reader)
+    public function __construct()
     {
-        $this->reader = $reader;
     }
 
     /**
@@ -42,10 +37,12 @@ class ExposedFieldsReader
         $reflectionClass = new \ReflectionClass($class);
 
         foreach ($reflectionClass->getProperties() as $reflectionProperty) {
-            $exposeAnnotation = $this->reader->getPropertyAnnotation($reflectionProperty, Expose::class);
+            $exposeAnnotations = $reflectionProperty->getAttributes(FilterExpose::class);
+            if (count($exposeAnnotations) > 0) {
+                $exposeAnnotation = $exposeAnnotations[0];
+                $arguments = $exposeAnnotation->getArguments();
 
-            if ($exposeAnnotation instanceof Expose) {
-                $serializedName = $exposeAnnotation->serializedName ?: $reflectionProperty->getName();
+                $serializedName = array_key_exists('serializedName', $arguments) ? $arguments['serializedName'] : $reflectionProperty->getName();
 
                 $result[$serializedName] = $reflectionProperty->getName();
             }
